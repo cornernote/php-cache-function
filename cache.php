@@ -114,3 +114,5 @@ function cache($key, $value = null, $expires = '+1 year')
     // return the data
     return $value;
 }
+
+// vim: ai:ts=4:sw=4:expandtab
