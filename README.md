@@ -2,6 +2,26 @@
 
 Function to store and retrieve variables from memcache with a filecache failback.
 
+## Usage
+
+```PHP
+// Load the library
+require('cache.php');
+
+// Unique key for the data we are storing/fetching
+$key = 'my_cache_key';
+
+// Store data in the cache
+$info = array('some' => 'data', 'more' => 'stuff');
+cache($key,$info);
+
+// Store data in the cache with a TTL
+cache($key,$info,'+5 minutes');
+
+// Fetch the data from the cache
+$data = cache($key);
+```
+
 ## About
 
 Copyright (c) 2013 Brett O'Donnell <cornernote@gmail.com>
