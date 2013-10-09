@@ -109,8 +109,14 @@ function cache($key, $value = null, $expires = '+1 year')
         }
         // write cache
         else {
-            if (!file_exists(dirname($file))) {
-                mkdir(dirname($file), 0700, true);
+            $dir = dirname($file);
+            if (!is_writable($dir)) {
+                trigger_error("Cannot create directory $dir", E_USER_WARNING);
+                return false;
+            }
+
+            if (!file_exists($dir)) {
+                mkdir($dir, 0700, true);
             }
             file_put_contents($file, serialize(array('data' => $value, 'time' => $expires)));
         }
