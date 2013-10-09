@@ -61,7 +61,7 @@ function cache($key, $value = null, $expires = '+1 year')
     }
 
     // attempt connection to memcache
-    if ($use_memcache && $memcache === null) {
+    if (USE_MEMCACHE && $memcache === null) {
         if (class_exists('Memcache')) {
             if (!$memcache) {
                 $memcache = new Memcache;
