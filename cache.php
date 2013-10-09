@@ -20,6 +20,11 @@ define('CACHE_MEMCACHE_HOST', 'localhost');
 // memcache server port
 define('CACHE_MEMCACHE_PORT', '11211');
 
+// Disable attempting to use a type of cache if you need to
+// Otherwise we'll try and be smart and pick for you
+define('USE_MEMCACHE',true);
+define('USE_FILECACHE',true);
+
 /**
  * cache()
  * Read, Write or Clear cached data using a key value pair.
@@ -56,7 +61,7 @@ function cache($key, $value = null, $expires = '+1 year')
     }
 
     // attempt connection to memcache
-    if ($memcache === null) {
+    if ($use_memcache && $memcache === null) {
         if (class_exists('Memcache')) {
             if (!$memcache) {
                 $memcache = new Memcache;
@@ -66,7 +71,7 @@ function cache($key, $value = null, $expires = '+1 year')
     }
 
     // handle cache using memcache
-    if ($memcache) {
+    if (USE_MEMCACHE && $memcache) {
         // read cache
         if ($value === null) {
             $time = $memcache->get($file . '.time');
@@ -87,7 +92,7 @@ function cache($key, $value = null, $expires = '+1 year')
     }
 
     // handle cache using files
-    else {
+    elseif (USE_FILECACHE) {
         $md5 = md5($key);
         $file = CACHE_FOLDER . substr($md5, 0, 1) . '/' . substr($md5, 0, 2) . '/' . substr($md5, 0, 3) . '/' . $file;
         // read cache
@@ -109,6 +114,8 @@ function cache($key, $value = null, $expires = '+1 year')
             }
             file_put_contents($file, serialize(array('data' => $value, 'time' => $expires)));
         }
+    } else {
+        trigger_error("No storage engines left to try", E_USER_ERROR);
     }
 
     // return the data
