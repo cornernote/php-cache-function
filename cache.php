@@ -15,10 +15,10 @@ define('CACHE_NAMESPACE', 'my-cache-namespace');
 define('CACHE_FOLDER', '/tmp/cache/');
 
 // memcache server hostname
-define('CACHE_MEMCACHE_HOST', 'localhost');
+define('CACHE_MEMCACHED_HOST', 'localhost');
 
 // memcache server port
-define('CACHE_MEMCACHE_PORT', '11211');
+define('CACHE_MEMCACHED_PORT', '11211');
 
 // Disable attempting to use a type of cache if you need to
 // Otherwise we'll try and be smart and pick for you
@@ -37,7 +37,7 @@ define('USE_FILECACHE',true);
 function cache($key, $value = null, $expires = '+1 year')
 {
     // static variables allowing the function to run faster when called multiple times
-    static $cache_id, $memcache;
+    static $cache_id, $memcached;
 
     // get the cache_id used for easy cache clearing
     if ($key != 'cache_id') {
@@ -61,33 +61,33 @@ function cache($key, $value = null, $expires = '+1 year')
     }
 
     // attempt connection to memcache
-    if (USE_MEMCACHE && $memcache === null) {
-        if (class_exists('Memcache')) {
-            if (!$memcache) {
-                $memcache = new Memcache;
-                @$memcache->connect(CACHE_MEMCACHE_HOST, CACHE_MEMCACHE_PORT) or ($memcache = false);
+    if (USE_MEMCACHE && $memcached === null) {
+        if (class_exists('Memcached')) {
+            if (!$memcached) {
+                $memcached = new Memcached;
+                @$memcached->addServer(CACHE_MEMCACHED_HOST, CACHE_MEMCACHED_PORT) or ($memcached = false);
             }
         }
     }
 
     // handle cache using memcache
-    if (USE_MEMCACHE && $memcache) {
+    if (USE_MEMCACHE && $memcached) {
         // read cache
         if ($value === null) {
-            $time = $memcache->get($file . '.time');
+            $time = $memcached->get($file . '.time');
             if (!$expires || $time <= $now) {
-                $memcache->delete($file . '.time');
-                $memcache->delete($file . '.data');
+                $memcached->delete($file . '.time');
+                $memcached->delete($file . '.data');
             }
             else {
-                $value = $memcache->get($file . '.data');
+                $value = $memcached->get($file . '.data');
                 if ($value === false) $value = null;
             }
         }
         // write cache
         else {
-            $memcache->set($file . '.data', $value);
-            $memcache->set($file . '.time', $expires);
+            $memcached->set($file . '.data', $value);
+            $memcached->set($file . '.time', $expires);
         }
     }
 
